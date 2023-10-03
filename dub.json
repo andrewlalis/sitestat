@@ -1,0 +1,13 @@
+{
+	"authors": [
+		"Andrew Lalis"
+	],
+	"copyright": "Copyright © 2023, Andrew Lalis",
+	"dependencies": {
+		"d-properties": "~>1.0.5",
+		"handy-httpd": "~>7.10.5"
+	},
+	"description": "A simple webserver and script for tracking basic, non-intrusive site statistics.",
+	"license": "MIT",
+	"name": "sitestat"
+}

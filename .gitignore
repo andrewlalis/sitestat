@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/sitestat
+sitestat.so
+sitestat.dylib
+sitestat.dll
+sitestat.a
+sitestat.lib
+sitestat-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst

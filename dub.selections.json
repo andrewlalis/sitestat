@@ -1,0 +1,10 @@
+{
+	"fileVersion": 1,
+	"versions": {
+		"d-properties": "1.0.5",
+		"handy-httpd": "7.10.5",
+		"httparsed": "1.2.1",
+		"slf4d": "2.4.3",
+		"streams": "3.5.0"
+	}
+}
