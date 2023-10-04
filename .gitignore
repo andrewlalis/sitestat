@@ -14,3 +14,5 @@ sitestat-test-*
 *.o
 *.obj
 *.lst
+
+*.sqlite
