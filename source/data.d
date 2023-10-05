@@ -1,8 +1,8 @@
 module data;
 
+import utils;
 import std.file;
 import std.datetime;
-import std.format;
 import d2sqlite3;
 
 static immutable FS_ORIGIN = "_LOCAL_FILESYSTEM_";
@@ -30,8 +30,8 @@ void storeSession(StoredSession s) {
         "(start_timestamp, end_timestamp, url, full_url, user_agent, event_count) " ~
         "VALUES (?, ?, ?, ?, ?, ?)"
     );
-    stmt.bind(1, formatTimestamp(s.startTimestamp));
-    stmt.bind(2, formatTimestamp(s.endTimestamp));
+    stmt.bind(1, formatSqliteTimestamp(s.startTimestamp));
+    stmt.bind(2, formatSqliteTimestamp(s.endTimestamp));
     stmt.bind(3, s.url);
     stmt.bind(4, s.fullUrl);
     stmt.bind(5, s.userAgent);
@@ -62,63 +62,4 @@ private void initDb(string path) {
         );
 SQL"
     );
-}
-
-ulong countSessions(string origin) {
-    Database db = getOrCreateDatabase(origin);
-    return db.execute("SELECT COUNT(id) FROM session;").oneValue!ulong;
-}
-
-private string formatTimestamp(SysTime t) {
-    return format!"%04d-%02d-%02d %02d:%02d:%02d"(
-        t.year, t.month, t.day,
-        t.hour, t.minute, t.second
-    );
-}
-
-string extractOrigin(string url) {
-    import std.algorithm : countUntil, startsWith;
-    ptrdiff_t idx = countUntil(url, "://");
-    if (idx == -1) return null;
-    string origin = url[idx + 3 .. $];
-    ptrdiff_t trailingSlashIdx = countUntil(origin, "/");
-    if (trailingSlashIdx != -1) {
-        origin = origin[0 .. trailingSlashIdx];
-    }
-    if (startsWith(origin, "www.")) {
-        origin = origin[4 .. $];
-    }
-    return origin;
-}
-
-unittest {
-    assert(extractOrigin("https://www.google.com/search") == "google.com");
-    assert(extractOrigin("https://litelist.andrewlalis.com") == "litelist.andrewlalis.com");
-}
-
-string dbPath(string origin) {
-    return "sitestat-db_" ~ origin ~ ".sqlite";
-}
-
-string originFromDbPath(string path) {
-    import std.algorithm : countUntil;
-    ptrdiff_t idx = countUntil(path, "sitestat-db_");
-    if (idx == -1) return null;
-    return path[(idx + 12)..$-7];
-}
-
-unittest {
-    assert(originFromDbPath("sitestat-db__LOCAL_FILESYSTEM_.sqlite") == "_LOCAL_FILESYSTEM_");
-}
-
-string[] listAllOrigins(string dir = ".") {
-    import std.array;
-    auto app = appender!(string[]);
-    foreach (DirEntry entry; dirEntries(dir, SpanMode.shallow, false)) {
-        string origin = originFromDbPath(entry.name);
-        if (origin !is null) {
-            app ~= origin;
-        }
-    }
-    return app[];
 }

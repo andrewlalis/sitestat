@@ -1,0 +1,13 @@
+[Unit]
+Description=sitestat
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/sitestat
+ExecStart=/opt/sitestat/sitestat
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

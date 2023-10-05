@@ -16,7 +16,7 @@ import core.sync.rwmutex;
  */
 class LiveTracker : WebSocketMessageHandler {
     private StatSession[UUID] sessions;
-    static immutable uint DEFAULT_MIN_SESSION_DURATION = 1000;
+    static immutable uint DEFAULT_MIN_SESSION_DURATION = 2000;
     private immutable uint minSessionDurationMillis;
     private TaskPool sessionPersistencePool;
     private ReadWriteMutex sessionsMutex;
@@ -35,7 +35,7 @@ class LiveTracker : WebSocketMessageHandler {
                 Clock.currTime(UTC())
             );
         }
-        infoF!"Started tracking session %s"(conn.id);
+        infoF!"Started tracking session %s. Tracking %d sessions right now."(conn.id, sessions.length);
     }
 
     override void onTextMessage(WebSocketTextMessage msg) {
@@ -70,17 +70,17 @@ class LiveTracker : WebSocketMessageHandler {
             Duration dur = endTimestamp - session.connectedAt;
             if (dur.total!"msecs" >= minSessionDurationMillis) {
                 infoF!"Session lasted %d seconds, %d events."(dur.total!"seconds", session.eventCount);
+                immutable storedSession = StoredSession(
+                    -1,
+                    session.connectedAt,
+                    endTimestamp,
+                    session.url,
+                    session.href,
+                    session.userAgent,
+                    session.eventCount
+                );
+                this.sessionPersistencePool.put(task!storeSession(storedSession));
             }
-            immutable storedSession = StoredSession(
-                -1,
-                session.connectedAt,
-                endTimestamp,
-                session.url,
-                session.href,
-                session.userAgent,
-                session.eventCount
-            );
-            this.sessionPersistencePool.put(task!storeSession(storedSession));
         }
         synchronized(sessionsMutex.writer) {
             sessions.remove(conn.id);

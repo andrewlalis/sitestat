@@ -4,20 +4,15 @@ import std.file;
 import handy_httpd;
 import handy_httpd.handlers.path_delegating_handler;
 import d_properties;
+import slf4d;
 
 void startServer() {
 	Properties props;
 	if (exists("sitestat.properties")) {
 		props = Properties("sitestat.properties");
+	} else {
+		warn("No sitestat.properties file was found. Using defaults!");
 	}
-
-	import slf4d;
-	import slf4d.default_provider;
-	auto provider = new shared DefaultProvider(true, Levels.INFO);
-	provider.getLoggerFactory().setModuleLevelPrefix("handy_httpd", Levels.WARN);
-	// provider.getLoggerFactory().setModuleLevel("live_tracker", Levels.DEBUG);
-	configureLoggingProvider(provider);
-	
 	new HttpServer(prepareHandler(props), prepareConfig(props)).start();
 }
 
@@ -58,5 +53,8 @@ private ServerConfig prepareConfig(Properties props) {
 	if (props.has("server.workers")) {
 		config.workerPoolSize = props.get!size_t("server.workers");
 	}
+	config.defaultHeaders["Access-Control-Allow-Origin"] = "*";
+	config.defaultHeaders["Access-Control-Allow-Methods"] = "*";
+	config.defaultHeaders["Access-Control-Allow-Headers"] = "*";
 	return config;
 }
