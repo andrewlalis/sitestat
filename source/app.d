@@ -1,7 +1,7 @@
 import server : startServer;
-import report : makeReport;
+import report.gen : makeReport;
 
-void main(string[] args) {
+int main(string[] args) {
 	import slf4d;
 	import slf4d.default_provider;
 	auto provider = new shared DefaultProvider(false, Levels.INFO);
@@ -11,7 +11,12 @@ void main(string[] args) {
 
 	if (args.length <= 1) {
 		startServer();
+		return 0;
 	} else if (args[1] == "report") {
-		makeReport(args[2..$]);
+		return makeReport(args[2..$]);
+	} else {
+		import std.stdio;
+		writeln("Invalid command. Expected no-args to start server, or \"report\" for report generation.");
+		return 1;
 	}
 }

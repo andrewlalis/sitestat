@@ -2,7 +2,7 @@ module server;
 
 import std.file;
 import handy_httpd;
-import handy_httpd.handlers.path_delegating_handler;
+import handy_httpd.handlers.path_handler;
 import d_properties;
 import slf4d;
 
@@ -22,7 +22,7 @@ void startServer() {
  */
 private HttpRequestHandler prepareHandler(Properties props) {
 	import live_tracker;
-	PathDelegatingHandler pathHandler = new PathDelegatingHandler();
+	PathHandler pathHandler = new PathHandler();
 	pathHandler.addMapping(
 		Method.GET,
 		"/ws",
